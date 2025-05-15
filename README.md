@@ -31,3 +31,5 @@ Currently under development and only supports for a limited API features
 - Root ✅
 - Tree ✅
 - Detail ✅
+- Create ✅
+- Update
