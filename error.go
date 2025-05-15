@@ -9,6 +9,7 @@ import (
 
 var (
 	ErrInvalidCredential = &InvalidCredentialError{}
+	ErrBadRequest        = &BadRequestError{}
 )
 
 type MetabaseError struct {
@@ -29,6 +30,15 @@ type InvalidCredentialError struct {
 
 func (e *InvalidCredentialError) Is(target error) bool {
 	_, ok := target.(*InvalidCredentialError)
+	return ok
+}
+
+type BadRequestError struct {
+	BaseError
+}
+
+func (e *BadRequestError) Is(target error) bool {
+	_, ok := target.(*BadRequestError)
 	return ok
 }
 
@@ -64,18 +74,15 @@ type HTTPErrorResponse struct {
 // string representation of http error response model
 func (err HTTPErrorResponse) String() string {
 	var res strings.Builder
-
 	if len(err.Error) > 0 {
 		res.WriteString(err.Error)
 	}
-
 	if len(err.Message) > 0 {
 		if res.Len() > 0 {
 			res.WriteString(": ")
 		}
 		res.WriteString(err.Message)
 	}
-
 	if len(err.Description) > 0 {
 		if res.Len() > 0 {
 			res.WriteString(": ")
@@ -83,7 +90,6 @@ func (err HTTPErrorResponse) String() string {
 
 		res.WriteString(err.Description)
 	}
-
 	return res.String()
 }
 
@@ -113,6 +119,19 @@ func NewInvalidCredentialError(message string, err ...error) error {
 	er := &InvalidCredentialError{
 		BaseError: BaseError{
 			Code:    http.StatusUnauthorized,
+			Message: message,
+		},
+	}
+	for _, e := range err {
+		er.Err = e
+	}
+	return er
+}
+
+func NewBadRequestError(message string, err ...error) error {
+	er := &BadRequestError{
+		BaseError: BaseError{
+			Code:    http.StatusBadRequest,
 			Message: message,
 		},
 	}

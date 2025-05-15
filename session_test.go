@@ -2,7 +2,7 @@ package metago
 
 import (
 	"context"
-	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/go-resty/resty/v2"
@@ -13,11 +13,22 @@ const (
 	password string = "your@password"
 )
 
+type handleFunc = func(req *http.Request) (*http.Response, error)
+
+type RoundTripper struct {
+	HandleFunc handleFunc
+}
+
+func (r *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	return r.HandleFunc(req)
+}
+
 func TestMetago_Login(t *testing.T) {
 	type fields struct {
 		basePath    string
 		authMethod  AuthMethod
 		restyClient *resty.Client
+		handleFunc  handleFunc
 		endpoint    Endpoint
 	}
 	type args struct {
@@ -25,6 +36,7 @@ func TestMetago_Login(t *testing.T) {
 		usr  string
 		pass string
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -37,6 +49,11 @@ func TestMetago_Login(t *testing.T) {
 				basePath:    "http://localhost:3000",
 				authMethod:  USERPASS,
 				restyClient: resty.New(),
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK,
+					}, nil
+				},
 				endpoint: Endpoint{
 					SessionEndpoint: JoinPath("/", "http://localhost:3000", "api", "session"),
 				},
@@ -53,6 +70,9 @@ func TestMetago_Login(t *testing.T) {
 				basePath:    "http://localhost:3000",
 				authMethod:  USERPASS,
 				restyClient: resty.New(),
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return nil, nil
+				},
 				endpoint: Endpoint{
 					SessionEndpoint: JoinPath("/", "http://localhost:3000", "api", "session"),
 				},
@@ -61,6 +81,28 @@ func TestMetago_Login(t *testing.T) {
 				ctx:  context.Background(),
 				usr:  "address@mail.com",
 				pass: "pass",
+			},
+			wantErr: true,
+		},
+		{
+			name: "ShouldErrorBadRequest",
+			fields: fields{
+				basePath:    "http://localhost:3000",
+				authMethod:  USERPASS,
+				restyClient: resty.New(),
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusBadRequest,
+					}, nil
+				},
+				endpoint: Endpoint{
+					SessionEndpoint: JoinPath("/", "http://localhost:3000", "api", "session"),
+				},
+			},
+			args: args{
+				ctx:  context.Background(),
+				usr:  username,
+				pass: password,
 			},
 			wantErr: true,
 		},
@@ -73,6 +115,9 @@ func TestMetago_Login(t *testing.T) {
 				restyClient: tt.fields.restyClient,
 				endpoint:    tt.fields.endpoint,
 			}
+			m.restyClient.SetTransport(&RoundTripper{
+				HandleFunc: tt.fields.handleFunc,
+			})
 			m.Session = &session{sdk: m}
 			_, err := m.Session.Login(tt.args.ctx, tt.args.usr, tt.args.pass)
 			if (err != nil) != tt.wantErr {
@@ -87,6 +132,7 @@ func TestMetago_Logout(t *testing.T) {
 		basePath    string
 		authMethod  AuthMethod
 		restyClient *resty.Client
+		handleFunc  handleFunc
 		endpoint    Endpoint
 	}
 	type args struct {
@@ -106,6 +152,11 @@ func TestMetago_Logout(t *testing.T) {
 				basePath:    "http://localhost:3000",
 				authMethod:  USERPASS,
 				restyClient: resty.New(),
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK,
+					}, nil
+				},
 				endpoint: Endpoint{
 					SessionEndpoint: JoinPath("/", "http://localhost:3000", "api", "session"),
 				},
@@ -125,18 +176,12 @@ func TestMetago_Logout(t *testing.T) {
 				restyClient: tt.fields.restyClient,
 				endpoint:    tt.fields.endpoint,
 			}
+			sess := ""
+			m.session = &sess
 			m.Session = &session{sdk: m}
-			// m.restyClient.Debug = true
+			m.restyClient.SetTransport(&RoundTripper{HandleFunc: tt.fields.handleFunc})
 
-			ses, err := m.Session.Login(tt.args.ctx, tt.args.usr, tt.args.pass)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Metago.Login() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if ses == nil || *ses == "" {
-				t.Errorf("Metago.Login() error = %v", fmt.Errorf("session id is empty"))
-			}
-			m.session = ses
-			err = m.Session.Logout(tt.args.ctx)
+			err := m.Session.Logout(tt.args.ctx)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Metago.Logout() error = %v, wantErr %v", err, tt.wantErr)
 			}

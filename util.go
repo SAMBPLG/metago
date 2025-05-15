@@ -27,12 +27,18 @@ func checkForError(resp *resty.Response, err error, errMessage string) error {
 	if resp.IsError() {
 		// var msg string
 
-		if resp.StatusCode() == http.StatusUnauthorized {
+		switch resp.StatusCode() {
+		case http.StatusUnauthorized:
 			var err error
 			if e, ok := resp.Error().(*MetabaseErr); ok {
 				err = e
 			}
 			return NewInvalidCredentialError("Unauthorized", err)
+		case http.StatusBadRequest:
+			return NewBadRequestError("Bad request")
+
+		case http.StatusOK:
+			return nil
 		}
 
 		// if e, ok := resp.Error().(*HTTPErrorResponse); ok && e.NotEmpty() {

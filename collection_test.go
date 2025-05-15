@@ -2,12 +2,13 @@ package metago
 
 import (
 	"context"
+	"net/http"
 	"net/url"
 	"reflect"
 	"testing"
 )
 
-const apikey string = "mb_WnlM50geCuJm7G8yaLIajsO45QzzRxc4IeL2LnRy/lE="
+const apikey string = "yourapikey"
 
 func TestCollectionParameters_Values(t *testing.T) {
 	type fields struct {
@@ -49,7 +50,8 @@ func TestCollectionParameters_Values(t *testing.T) {
 
 func TestCollection_Collections(t *testing.T) {
 	type fields struct {
-		sdk *Metago
+		sdk        *Metago
+		handleFunc handleFunc
 	}
 	type args struct {
 		ctx  context.Context
@@ -75,6 +77,9 @@ func TestCollection_Collections(t *testing.T) {
 			name: "ShouldReturnCollections",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:  ctx,
@@ -88,6 +93,9 @@ func TestCollection_Collections(t *testing.T) {
 			m := &collection{
 				sdk: tt.fields.sdk,
 			}
+			m.sdk.restyClient.SetTransport(&RoundTripper{
+				HandleFunc: tt.fields.handleFunc,
+			})
 			var res []Collection
 			if err := m.Collections(tt.args.ctx, tt.args.opts, &res); (err != nil) != tt.wantErr {
 				t.Errorf("Collection.Collections() error = %v, wantErr %v", err, tt.wantErr)
@@ -98,7 +106,8 @@ func TestCollection_Collections(t *testing.T) {
 
 func Test_collection_Root(t *testing.T) {
 	type fields struct {
-		sdk *Metago
+		sdk        *Metago
+		handleFunc handleFunc
 	}
 	type args struct {
 		ctx    context.Context
@@ -125,6 +134,9 @@ func Test_collection_Root(t *testing.T) {
 			name: "ShouldReturnRootCollection",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:    ctx,
@@ -138,6 +150,7 @@ func Test_collection_Root(t *testing.T) {
 			m := &collection{
 				sdk: tt.fields.sdk,
 			}
+			m.sdk.restyClient.SetTransport(&RoundTripper{HandleFunc: tt.fields.handleFunc})
 			if err := m.Root(tt.args.ctx, tt.args.opts, tt.args.result); (err != nil) != tt.wantErr {
 				t.Errorf("collection.Root() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -148,7 +161,8 @@ func Test_collection_Root(t *testing.T) {
 
 func Test_collection_Tree(t *testing.T) {
 	type fields struct {
-		sdk *Metago
+		sdk        *Metago
+		handleFunc handleFunc
 	}
 	type args struct {
 		ctx    context.Context
@@ -175,6 +189,9 @@ func Test_collection_Tree(t *testing.T) {
 			name: "ShouldReturnTree",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:    ctx,
@@ -188,6 +205,7 @@ func Test_collection_Tree(t *testing.T) {
 			m := &collection{
 				sdk: tt.fields.sdk,
 			}
+			m.sdk.restyClient.SetTransport(&RoundTripper{HandleFunc: tt.fields.handleFunc})
 			if err := m.Tree(tt.args.ctx, tt.args.opts, tt.args.result); (err != nil) != tt.wantErr {
 				t.Errorf("collection.Tree() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -210,7 +228,8 @@ func Test_collection_Tree(t *testing.T) {
 
 func Test_collection_Get(t *testing.T) {
 	type fields struct {
-		sdk *Metago
+		sdk        *Metago
+		handleFunc handleFunc
 	}
 	type args struct {
 		ctx    context.Context
@@ -237,6 +256,9 @@ func Test_collection_Get(t *testing.T) {
 			name: "ShouldReturnCollection2",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:    ctx,
@@ -248,6 +270,9 @@ func Test_collection_Get(t *testing.T) {
 			name: "ShouldReturnCollection1",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:    ctx,
@@ -259,6 +284,9 @@ func Test_collection_Get(t *testing.T) {
 			name: "ShouldReturnCollection3",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:    ctx,
@@ -270,6 +298,9 @@ func Test_collection_Get(t *testing.T) {
 			name: "ShouldReturnCollection4",
 			fields: fields{
 				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
 			},
 			args: args{
 				ctx:    ctx,
@@ -283,6 +314,7 @@ func Test_collection_Get(t *testing.T) {
 			m := &collection{
 				sdk: tt.fields.sdk,
 			}
+			m.sdk.restyClient.SetTransport(&RoundTripper{HandleFunc: tt.fields.handleFunc})
 			if err := m.Get(tt.args.ctx, tt.args.id, tt.args.result); (err != nil) != tt.wantErr {
 				t.Errorf("collection.Get() error = %v, wantErr %v", err, tt.wantErr)
 			}
