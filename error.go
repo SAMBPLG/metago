@@ -98,8 +98,29 @@ func (err HTTPErrorResponse) NotEmpty() bool {
 	return len(err.Error) > 0 || len(err.Message) > 0 || len(err.Description) > 0
 }
 
+//	{
+//		"specific-errors": {
+//		   "authority_level": [
+//			  "should be \"official\", received: \"\""
+//		   ],
+//		   "description": [
+//			  "should be at least 1 character, received: \"\"",
+//			  "non-blank string, received: \"\""
+//		   ],
+//		   "namespace": [
+//			  "should be at least 1 character, received: \"\"",
+//			  "non-blank string, received: \"\""
+//		   ]
+//		},
+//		"errors": {
+//		   "description": "nullable value must be a non-blank string.",
+//		   "namespace": "nullable value must be a non-blank string.",
+//		   "authority_level": "nullable enum of official"
+//		}
+//	 }
 type MetabaseErr struct {
-	Errors map[string]string `json:"errors"`
+	Errors         map[string]string   `json:"errors"`
+	SpecificErrors map[string][]string `json:"specific-errors,omitempty"`
 }
 
 func (e MetabaseErr) Error() string {

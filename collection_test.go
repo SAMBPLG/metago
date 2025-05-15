@@ -122,7 +122,7 @@ func Test_collection_Root(t *testing.T) {
 		Context:    ctx,
 	})
 	if err != nil {
-		t.Errorf("Collection.Collections() error = %v", err)
+		t.Errorf("Collection.Root() error = %v", err)
 	}
 	tests := []struct {
 		name    string
@@ -177,7 +177,7 @@ func Test_collection_Tree(t *testing.T) {
 		Context:    ctx,
 	})
 	if err != nil {
-		t.Errorf("Collection.Collections() error = %v", err)
+		t.Errorf("Collection.Tree() error = %v", err)
 	}
 	tests := []struct {
 		name    string
@@ -317,6 +317,58 @@ func Test_collection_Get(t *testing.T) {
 			m.sdk.restyClient.SetTransport(&RoundTripper{HandleFunc: tt.fields.handleFunc})
 			if err := m.Get(tt.args.ctx, tt.args.id, tt.args.result); (err != nil) != tt.wantErr {
 				t.Errorf("collection.Get() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_collection_Create(t *testing.T) {
+	type fields struct {
+		sdk        *Metago
+		handleFunc handleFunc
+	}
+	type args struct {
+		ctx context.Context
+		req *Collection
+	}
+	ctx := context.Background()
+	sdk, err := New(Option{
+		BasePath:   "http://localhost:3000",
+		AuthMethod: APIKEY,
+		APIKey:     apikey,
+		Context:    ctx,
+	})
+	if err != nil {
+		t.Errorf("Collection.Create() error = %v", err)
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "ShouldCreateCollection",
+			fields: fields{
+				sdk: sdk,
+				handleFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{StatusCode: http.StatusOK}, nil
+				},
+			},
+			args: args{
+				ctx: ctx,
+				req: &Collection{Name: "API Collection"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := &collection{
+				sdk: tt.fields.sdk,
+			}
+			m.sdk.restyClient.SetTransport(&RoundTripper{HandleFunc: tt.fields.handleFunc})
+			if err := m.Create(tt.args.ctx, tt.args.req); (err != nil) != tt.wantErr {
+				t.Errorf("collection.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
