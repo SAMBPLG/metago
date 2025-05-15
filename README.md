@@ -1,0 +1,30 @@
+# Metago is Metabase SDK for Go
+
+[![ci](https://github.com/SAMBPLG/metago/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SAMBPLG/metago/actions/workflows/ci.yml)
+[![GoDoc](https://godoc.org/github.com/SAMBPLG/metago?status.svg)](https://godoc.org/github.com/SAMBPLG/metago)
+[![Go Report Card](https://goreportcard.com/badge/github.com/SAMBPLG/metago)](https://goreportcard.com/report/github.com/SAMBPLG/metago)
+
+Currently under development and only supports for a limited API features
+
+## Features
+
+- Auto login with api-key or username and password
+- Strongly typed error
+
+## API
+
+### Session
+
+- Login ✅
+- Logout ✅
+- Forgot Password
+- Google Oauth
+- LDAP
+
+### Collection
+
+- List ✅
+- Root ✅
+- Tree ✅
+- Detail ✅
+# metago
