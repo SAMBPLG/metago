@@ -1,0 +1,8 @@
+
+**/.DS_Store
+tmp
+*.out
+*.tree
+.claudesync/*
+.idea/
+.vscode/
