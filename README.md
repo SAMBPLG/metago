@@ -11,6 +11,10 @@ Currently under development and only supports for a limited API features
 - Auto login with api-key or username and password
 - Strongly typed error
 
+## Requirements
+
+- Go 1.22 or higher
+
 ## API
 
 ### Session
@@ -27,4 +31,3 @@ Currently under development and only supports for a limited API features
 - Root ✅
 - Tree ✅
 - Detail ✅
-# metago
