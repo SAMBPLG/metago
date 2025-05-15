@@ -28,6 +28,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: SAMBPLG/metago
 
       - name: Report Status
         uses: actions/github-script@v6
