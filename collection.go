@@ -2,6 +2,7 @@ package metago
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -39,6 +40,23 @@ type Collection struct {
 	Here               []string     `json:"here,omitempty"`
 	Below              []string     `json:"below,omitempty"`
 	UserPermission
+}
+
+func (c *Collection) MarshalJSON() ([]byte, error) {
+	m := map[string]any{"name": c.Name}
+	if c.ParentID != nil {
+		m["parent_id"] = c.ParentID
+	}
+	if c.AuthorityLevel != "" {
+		m["authority_level"] = c.AuthorityLevel
+	}
+	if c.Description != "" {
+		m["description"] = c.Description
+	}
+	if c.Namespace != "" {
+		m["namespace"] = c.Namespace
+	}
+	return json.Marshal(m)
 }
 
 // CollectionParameters represents metabase collection api query parameters
@@ -140,6 +158,21 @@ func (m *collection) Get(ctx context.Context, id string, result *Collection) err
 		SetPathParam("collection_id", id).
 		Get(JoinPath(URLSeparator, m.sdk.endpoint.CollectionEndpoint, "{collection_id}"))
 	if err := checkForError(resp, err, "failed to fetch collection"); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Create create a new Collection.
+// https://www.metabase.com/docs/latest/api#tag/apicollection/POST/api/collection/
+func (m *collection) Create(ctx context.Context, req *Collection) error {
+	var errResp MetabaseErr
+	resp, err := m.sdk.getRequestWithAuth(ctx).
+		SetBody(req).
+		SetError(&errResp).
+		SetResult(req).
+		Post(m.sdk.endpoint.CollectionEndpoint)
+	if err := checkForError(resp, err, "failed to create collection"); err != nil {
 		return err
 	}
 	return nil
