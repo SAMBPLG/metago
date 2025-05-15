@@ -3,6 +3,7 @@
 [![ci](https://github.com/SAMBPLG/metago/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SAMBPLG/metago/actions/workflows/ci.yml)
 [![GoDoc](https://godoc.org/github.com/SAMBPLG/metago?status.svg)](https://godoc.org/github.com/SAMBPLG/metago)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SAMBPLG/metago)](https://goreportcard.com/report/github.com/SAMBPLG/metago)
+[![codecov](https://codecov.io/github/SAMBPLG/metago/graph/badge.svg?token=4TCO7OD7NS)](https://codecov.io/github/SAMBPLG/metago)
 
 Currently under development and only supports for a limited API features
 
