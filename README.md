@@ -34,3 +34,7 @@ Currently under development and only supports for a limited API features
 - Detail ✅
 - Create ✅
 - Update
+
+### Card
+
+- List ✅
