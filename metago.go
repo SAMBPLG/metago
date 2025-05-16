@@ -29,6 +29,7 @@ type Metago struct {
 	Action      *action
 	Session     *session
 	Collection  *collection
+	Card        *card
 }
 
 type Endpoint struct {
@@ -141,6 +142,7 @@ func New(opt Option, opts ...func(*Metago)) (*Metago, error) {
 	}
 
 	m.Action = &action{sdk: m}
+	m.Card = &card{sdk: m}
 	m.Session = &session{sdk: m}
 	m.Collection = &collection{sdk: m}
 

@@ -25,35 +25,26 @@ func checkForError(resp *resty.Response, err error, errMessage string) error {
 	}
 
 	if resp.IsError() {
-		// var msg string
+		var err error
+		if e, ok := resp.Error().(*MetabaseErr); ok {
+			err = e
+		}
 
 		switch resp.StatusCode() {
 		case http.StatusUnauthorized:
-			var err error
-			if e, ok := resp.Error().(*MetabaseErr); ok {
-				err = e
-			}
 			return NewInvalidCredentialError("Unauthorized", err)
 		case http.StatusBadRequest:
-			return NewBadRequestError("Bad request")
+			return NewBadRequestError("Bad request", err)
 
 		case http.StatusOK:
 			return nil
 		}
 
-		// if e, ok := resp.Error().(*HTTPErrorResponse); ok && e.NotEmpty() {
-		// 	log.Println("Kesini juga")
-		// 	msg = fmt.Sprintf("%s: %s", resp.Status(), e)
-		// } else {
-		// 	log.Println("Malah kesini juga")
-		// 	msg = resp.Status()
-		// }
-
-		// return &APIError{
-		// 	Code:    resp.StatusCode(),
-		// 	Message: msg,
-		// 	Type:    ParseAPIErrType(err),
-		// }
+		return &APIError{
+			Code:    resp.StatusCode(),
+			Message: string(resp.Body()),
+			Type:    ParseAPIErrType(err),
+		}
 	}
 
 	return nil

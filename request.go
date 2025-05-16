@@ -19,7 +19,6 @@ func (m *Metago) getRequestWithAuth(ctx context.Context) *resty.Request {
 	r := m.getRequest(ctx)
 	switch m.authMethod {
 	case USERPASS:
-
 		r = r.SetHeader("x-metabase-session", *m.session)
 	case APIKEY:
 		r = r.SetHeader("x-api-key", *m.session)
